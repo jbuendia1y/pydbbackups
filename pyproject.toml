@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydbbackups"
-version = "0.0.1"
+version = "0.0.2"
 description = "DB backups handler"
 authors = ["jbuendia1y <jgamer669@gmail.com>"]
 readme = "README.md"
