@@ -4,6 +4,9 @@ version = "0.0.1"
 description = "DB backups handler"
 authors = ["jbuendia1y <jgamer669@gmail.com>"]
 readme = "README.md"
+homepage = "https://github.com/jbuendia1y/pydbbackups"
+repository = "https://github.com/jbuendia1y/pydbbackups"
+keywords = ["backups", "databases", "handler", "library", "cli"]
 
 [tool.poetry.scripts]
 dbbackups = "pydbbackups.cli.main:main"
