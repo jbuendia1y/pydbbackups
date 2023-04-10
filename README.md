@@ -2,6 +2,12 @@
 
 A backup handler
 
+## Installation
+
+```bash
+pip install pydbbackups
+```
+
 ## CLI example
 
 ```bash
