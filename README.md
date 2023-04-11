@@ -11,7 +11,7 @@ pip install pydbbackups
 ## CLI example
 
 ```bash
-dbbackups run \
+dbbackups dump \
     --name backup-example \
     --database-type postgres \
     --host localhost \

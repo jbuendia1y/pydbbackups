@@ -13,7 +13,6 @@ class Backup:
     database: str
 
     uri: Optional[str] = None
-    name: Optional[str] = None
     password: Optional[str] = None
     port: Optional[int] = None
 

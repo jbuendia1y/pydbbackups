@@ -7,7 +7,8 @@ from pydbbackups.cli.config import build_config
 from pydbbackups.cli.services import BackupsService
 
 
-@click.group()
+@click.group(invoke_without_command=True, no_args_is_help=True)
+@click.version_option('0.0.4', prog_name='dbbackups')
 def app():
     """ Awesome APP """
 
@@ -27,7 +28,7 @@ def get_backups():
     console.print(table)
 
 
-@app.command(name='run')
+@app.command(name='dump')
 @click.option('--name', required=True)
 @click.option('--database-type', required=True, type=click.Choice(['postgres', 'mongodb']))
 @click.option('--host', required=True)
@@ -48,7 +49,6 @@ def make_backup(name: str, database_type, host, database, username, password, wi
 
     service = BackupsService.build(
         database_type,
-        name=name,
         host=host,
         database=database,
         username=username,
@@ -56,7 +56,9 @@ def make_backup(name: str, database_type, host, database, username, password, wi
         port=port,
         compress=compress)
 
-    service.dump(name)
+    console = Console()
+    with console.status("[bold green]Dumping database ..."):
+        service.dump(name)
 
 
 def main():
