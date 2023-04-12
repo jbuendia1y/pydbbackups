@@ -28,7 +28,6 @@ dbbackups dump \
 from pydbbackups import Postgres
 
 cls = Postgres(
-    name="MyDB",
     compress=False,
     database="test",
     host="localhost",
