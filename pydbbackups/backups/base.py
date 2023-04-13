@@ -3,7 +3,7 @@ from typing import Optional, Sequence, Tuple
 from io import BytesIO
 from pathlib import Path
 from pydbbackups.errors import MethodNotImplemented, CommandNotFound
-import subprocess
+from shutil import which
 
 
 @dataclass
@@ -28,20 +28,15 @@ class Backup:
             return
 
         for cmd in cls.CMDS_TO_CHECK:
-            args = []
+            # args = []
             if isinstance(cmd, tuple):
                 command = cmd[0]
-                if len(cmd) > 1:
-                    args = cmd[1]
+                # if len(cmd) > 1:
+                #     args = cmd[1]
             else:
                 command = cmd
 
-            try:
-                subprocess.Popen([
-                    command,
-                    *args
-                ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            except FileNotFoundError:
+            if not which(command):
                 raise CommandNotFound(command)
 
     def dump(self) -> BytesIO:
