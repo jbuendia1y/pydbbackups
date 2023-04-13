@@ -39,7 +39,7 @@ class Backup:
             if not which(command):
                 raise CommandNotFound(command)
 
-    def dump(self) -> BytesIO:
+    def dump(self, **kwargs) -> BytesIO:
         raise MethodNotImplemented('Dump')
 
     def restore(self, file_path: Path) -> BytesIO:
