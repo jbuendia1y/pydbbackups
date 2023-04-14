@@ -7,7 +7,6 @@ example:
 from pydbbackups import Postgres
 
 cls = Postgres(
-    compress=False,
     database="test",
     host="localhost",
     port=5432,

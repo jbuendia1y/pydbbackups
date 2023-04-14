@@ -6,6 +6,10 @@ class MongoDB(Backup):
     CMDS_TO_CHECK = [('mongodump', '--version')]
 
     def dump(self, **kwargs):
+        config = {
+            'compress': kwargs.get('compress', False)
+        }
+
         if self.uri:
             args = [
                 '-uri', self.uri
@@ -19,7 +23,7 @@ class MongoDB(Backup):
                 '--port', f"{self.port}",
             ]
 
-        if self.compress:
+        if config['compress']:
             args.append('--gzip')
 
         p = subprocess.Popen([

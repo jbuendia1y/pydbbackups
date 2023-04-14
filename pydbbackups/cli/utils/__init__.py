@@ -37,7 +37,7 @@ def save_backup_file(meta: BackupFile, content: bytes | str) -> BackupFile:
         raise ValueError("the backup name should not include <___>")
     path = BACKUPS_DIR.joinpath(f"{meta.name}___{meta.date}")
     path.touch()
-    if content is bytes:
+    if isinstance(content, bytes):
         path.write_bytes(content)
     else:
         path.write_text(content)

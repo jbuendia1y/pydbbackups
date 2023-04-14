@@ -35,14 +35,14 @@ class BackupsService:
 
             yield bfile, bdata
 
-    def dump(self, name: str):
-        output = self.backup_cls.dump()
+    def dump(self, name: str, **kwargs):
+        output = self.backup_cls.dump(**kwargs)
         if not output:
             return
 
         created_at = datetime.now()
         meta = save_backup_file(BackupFile(
-            name, created_at, ""), output.read().decode('utf-8'))
+            name, created_at, ""), output.read())
         print(meta.file, 'Created !')
 
         data = get_backups_data()

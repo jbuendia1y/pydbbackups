@@ -16,8 +16,6 @@ class Backup:
     password: Optional[str] = None
     port: Optional[int] = None
 
-    compress: Optional[bool] = False
-
     CMDS_TO_CHECK: Optional[Sequence[Tuple[str, Optional[str]] | str]] = None
 
     @classmethod

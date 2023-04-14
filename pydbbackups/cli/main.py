@@ -37,7 +37,7 @@ def get_backups():
 @click.option('--password', default=None)
 @click.option('--without-password', default=False)
 @click.option('--port', default=None)
-@click.option('--compress', default=None)
+@click.option('--compress', default=None, is_flag=True)
 def make_backup(name: str, database_type, host, database, username, password, without_password, port, compress):
     name = name.replace('-', '_')
 
@@ -54,11 +54,11 @@ def make_backup(name: str, database_type, host, database, username, password, wi
         username=username,
         password=password,
         port=port,
-        compress=compress)
+    )
 
     console = Console()
     with console.status("[bold green]Dumping database ..."):
-        service.dump(name)
+        service.dump(name, compress=compress)
 
 
 def main():
