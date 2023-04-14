@@ -5,7 +5,7 @@ import subprocess
 class MongoDB(Backup):
     CMDS_TO_CHECK = [('mongodump', '--version')]
 
-    def dump(self):
+    def dump(self, **kwargs):
         if self.uri:
             args = [
                 '-uri', self.uri
