@@ -1,14 +1,21 @@
 from datetime import datetime
 from dataclasses import dataclass, field
 from collections import namedtuple
+from typing import NamedTuple
+from pathlib import Path
 
 
 @dataclass
 class BackupData:
     id: int
     name: str
+    ext: str
     database_name: str
     created_at: datetime = field(default_factory=lambda: datetime.now())
 
 
-BackupFile = namedtuple('BackupFile', ['name', 'date', 'file'])
+class BackupFile(NamedTuple):
+    id: int
+    name: str
+    ext: str
+    file: Path

@@ -17,12 +17,14 @@ def app():
 def get_backups():
     table = Table()
 
+    table.add_column('ID')
     table.add_column('Nombre')
     table.add_column('Base de datos')
     table.add_column('Fecha')
 
     for bfile, bdata in BackupsService.list_backups():
-        table.add_row(bfile.name, bdata.database_name, bfile.date)
+        table.add_row(f"{bdata.id}", bfile.name,
+                      bdata.database_name, bdata.created_at)
 
     console = Console()
     console.print(table)
@@ -38,7 +40,9 @@ def get_backups():
 @click.option('--without-password', default=False)
 @click.option('--port', default=None)
 @click.option('--compress', default=None, is_flag=True)
-def make_backup(name: str, database_type, host, database, username, password, without_password, port, compress):
+@click.option('--format', default=None)
+@click.option('--file', required=False, default=None)
+def make_backup(name: str, database_type, host, database, username, password, without_password, port, compress, **kwargs):
     name = name.replace('-', '_')
 
     if without_password is False and password is None:
@@ -58,7 +62,7 @@ def make_backup(name: str, database_type, host, database, username, password, wi
 
     console = Console()
     with console.status("[bold green]Dumping database ..."):
-        service.dump(name, compress=compress)
+        service.dump(name, compress=compress, **kwargs)
 
 
 def main():

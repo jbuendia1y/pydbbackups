@@ -5,7 +5,37 @@ from pydbbackups.cli.models import BackupData, BackupFile
 from pydbbackups import Backup
 from datetime import datetime
 from dataclasses import asdict
+from pydbbackups.backups import postgres, mongodb
 import json
+from pathlib import Path
+
+
+def backup_ext_formatter(db_type: str, name: str, format: str = None) -> str:
+    databases = {
+        "postgres": {
+            postgres.DUMP_CUSTOM_FORMAT: 'dump',
+            postgres.DUMP_SQL_FORMAT: 'sql',
+            postgres.DUMP_TAR_FORMAT: 'tar',
+            postgres.DUMP_DIRECTORY_FORMAT: '',
+            'DEFAULT': postgres.DUMP_DEFAULT_FORMAT
+        },
+        "mongodb": {
+            mongodb.DUMP_ARCHIVE_FORMAT: 'archive',
+            mongodb.DUMP_GZIP_FORMAT: 'gz',
+            'DEFAULT': mongodb.DUMP_DEFAULT_FORMAT
+        }
+    }
+
+    dictionary = databases.get(db_type, None)
+
+    if not dictionary:
+        return name
+
+    if not format:
+        ext = dictionary.get(dictionary.get('DEFAULT'))
+    else:
+        ext = dictionary.get(format)
+    return f"{name}{f'.{ext}' if len(ext) > 0 else ''}"
 
 
 class BackupsService:
@@ -29,7 +59,8 @@ class BackupsService:
         backups = get_backups_files()
 
         for bfile in backups:
-            bdata = next((obj for obj in data if obj.name == bfile.name), None)
+            # Get the first object
+            bdata = next((obj for obj in data if obj.id == bfile.id), None)
             if not bdata:
                 continue
 
@@ -37,18 +68,30 @@ class BackupsService:
 
     def dump(self, name: str, **kwargs):
         output = self.backup_cls.dump(**kwargs)
-        if not output:
-            return
-
-        created_at = datetime.now()
-        meta = save_backup_file(BackupFile(
-            name, created_at, ""), output.read())
-        print(meta.file, 'Created !')
+        content = output.read()
 
         data = get_backups_data()
+        created_id = len(data)
+        created_at = datetime.now()
+
+        name = backup_ext_formatter(
+            self.db_type, name, kwargs.get('format', None))
+
+        if len(name.split('.')) > 1:
+            [name, ext] = name.split('.')
+
+        if not output or len(content) == 0:
+            print('Warning: This backup not to be save')
+            return
+        else:
+            meta = save_backup_file(BackupFile(
+                id=created_id, name=name, ext=ext, file=Path()), content)
+            print(meta.file, 'Created !')
+
         data.append(BackupData(**{
             "id": len(data),
-            "name": name,
+            "name": meta.name,
+            "ext": meta.ext,
             "database_name": self.db_type,
             "created_at": created_at
         }))

@@ -23,8 +23,9 @@ def get_backups_files() -> Generator[BackupFile, None, None]:
     dir = BACKUPS_DIR.iterdir()
 
     for f in dir:
-        [name, date] = f.name.split("___")
-        yield BackupFile(name, date, f)
+        [id, name] = f.name.split("___")
+        [name, ext] = name.split('.')
+        yield BackupFile(id=int(id), name=name, ext=ext, file=f)
 
 
 def get_backup_class(name: str) -> Backup:
@@ -35,14 +36,16 @@ def get_backup_class(name: str) -> Backup:
 def save_backup_file(meta: BackupFile, content: bytes | str) -> BackupFile:
     if "___" in meta.name:
         raise ValueError("the backup name should not include <___>")
-    path = BACKUPS_DIR.joinpath(f"{meta.name}___{meta.date}")
+
+    path = BACKUPS_DIR.joinpath(
+        f"{meta.id}___{meta.name}{f'.{meta.ext}' if meta.ext else ''}")
     path.touch()
     if isinstance(content, bytes):
         path.write_bytes(content)
     else:
         path.write_text(content)
 
-    return BackupFile(meta.name, meta.date, path)
+    return BackupFile(id=meta.id, name=meta.name, ext=meta.ext, file=path)
 
 
 class DTEncoder(json.JSONEncoder):

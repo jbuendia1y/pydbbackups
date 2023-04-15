@@ -1,5 +1,11 @@
 from .base import Backup
 import subprocess
+from io import BytesIO
+
+
+DUMP_DEFAULT_FORMAT = "archive"
+DUMP_GZIP_FORMAT = "gz"
+DUMP_ARCHIVE_FORMAT = "archive"
 
 
 class MongoDB(Backup):
@@ -7,7 +13,7 @@ class MongoDB(Backup):
 
     def dump(self, **kwargs):
         config = {
-            'compress': kwargs.get('compress', False)
+            'compress': kwargs.get('compress', False),
         }
 
         if self.uri:
@@ -16,11 +22,11 @@ class MongoDB(Backup):
             ]
         else:
             args = [
-                '--out=mongodb_dump',
                 '--username', self.username,
                 '--password', self.password,
                 '--host', self.host,
                 '--port', f"{self.port}",
+                '--archive'
             ]
 
         if config['compress']:
@@ -28,11 +34,11 @@ class MongoDB(Backup):
 
         p = subprocess.Popen([
             "mongodump",
-            *args
-        ])
+            *args,
+        ], stdout=subprocess.PIPE)
 
         status_code = p.wait()
         if status_code > 0:
             raise Exception(p.stderr.read().decode('utf-8'))
 
-        return p.stdout
+        return BytesIO(p.stdout.read())

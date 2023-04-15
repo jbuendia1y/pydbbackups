@@ -8,6 +8,7 @@ DUMP_SQL_FORMAT = 'p'
 DUMP_CUSTOM_FORMAT = 'c'
 DUMP_DIRECTORY_FORMAT = 'd'
 DUMP_TAR_FORMAT = 't'
+DUMP_DEFAULT_FORMAT = 'p'
 
 
 class Postgres(Backup):
@@ -23,7 +24,7 @@ class Postgres(Backup):
             env['PGPASSWORD'] = self.password
 
         config = {
-            "format": kwargs.get('format', DUMP_SQL_FORMAT),
+            "format": kwargs.get('format', DUMP_DEFAULT_FORMAT) or DUMP_DEFAULT_FORMAT,
             "compress": kwargs.get('compress', False),
             "compress_level": kwargs.get('compress_level', 9),
             "file": kwargs.get('file', None)
