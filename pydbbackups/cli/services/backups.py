@@ -81,7 +81,7 @@ class BackupsService:
             [name, ext] = name.split('.')
 
         if not output or len(content) == 0:
-            print('Warning: This backup not to be save')
+            print('Warning: This backup will not be saved')
             return
         else:
             meta = save_backup_file(BackupFile(
