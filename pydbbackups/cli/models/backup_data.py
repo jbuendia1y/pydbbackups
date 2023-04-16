@@ -1,6 +1,5 @@
 from datetime import datetime
 from dataclasses import dataclass, field
-from collections import namedtuple
 from typing import NamedTuple
 from pathlib import Path
 
@@ -10,6 +9,7 @@ class BackupData:
     id: int
     name: str
     ext: str
+    backup: Path
     database_name: str
     created_at: datetime = field(default_factory=lambda: datetime.now())
 

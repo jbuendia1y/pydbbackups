@@ -1,41 +1,26 @@
-from pydbbackups.cli.utils import get_backup_class, save_backup_file, get_backups_data, get_backups_files, DTEncoder
+from pydbbackups.cli.utils import get_backup_class, save_backup_file, get_backups_data, get_backups_files, DTEncoder, mongo_ext_formatter, postgres_ext_formatter
 from pydbbackups.cli.config import BACKUPS_DATA_DIR
 from pydbbackups.cli.models import BackupData, BackupFile
 
 from pydbbackups import Backup
 from datetime import datetime
 from dataclasses import asdict
-from pydbbackups.backups import postgres, mongodb
 import json
 from pathlib import Path
 
 
-def backup_ext_formatter(db_type: str, name: str, format: str = None) -> str:
+def backup_ext_formatter(db_type: str, name: str, **kwargs) -> str:
     databases = {
-        "postgres": {
-            postgres.DUMP_CUSTOM_FORMAT: 'dump',
-            postgres.DUMP_SQL_FORMAT: 'sql',
-            postgres.DUMP_TAR_FORMAT: 'tar',
-            postgres.DUMP_DIRECTORY_FORMAT: '',
-            'DEFAULT': postgres.DUMP_DEFAULT_FORMAT
-        },
-        "mongodb": {
-            mongodb.DUMP_ARCHIVE_FORMAT: 'archive',
-            mongodb.DUMP_GZIP_FORMAT: 'gz',
-            'DEFAULT': mongodb.DUMP_DEFAULT_FORMAT
-        }
+        "postgres": postgres_ext_formatter,
+        "mongodb": mongo_ext_formatter
     }
 
-    dictionary = databases.get(db_type, None)
+    formatter = databases.get(db_type, None)
 
-    if not dictionary:
+    if not formatter:
         return name
 
-    if not format:
-        ext = dictionary.get(dictionary.get('DEFAULT'))
-    else:
-        ext = dictionary.get(format)
-    return f"{name}{f'.{ext}' if len(ext) > 0 else ''}"
+    return formatter(name, **kwargs)
 
 
 class BackupsService:
@@ -66,6 +51,13 @@ class BackupsService:
 
             yield bfile, bdata
 
+    @staticmethod
+    def get_backup(backup_id: int):
+        data = get_backups_data()
+        for v in data:
+            if v.id == backup_id:
+                return v
+
     def dump(self, name: str, **kwargs):
         output = self.backup_cls.dump(**kwargs)
         content = output.read()
@@ -75,7 +67,7 @@ class BackupsService:
         created_at = datetime.now()
 
         name = backup_ext_formatter(
-            self.db_type, name, kwargs.get('format', None))
+            self.db_type, name, **kwargs)
 
         if len(name.split('.')) > 1:
             [name, ext] = name.split('.')
@@ -93,11 +85,12 @@ class BackupsService:
             "name": meta.name,
             "ext": meta.ext,
             "database_name": self.db_type,
+            "backup": meta.file,
             "created_at": created_at
         }))
 
         serialized_data = [asdict(v) for v in data]
         BACKUPS_DATA_DIR.write_text(json.dumps(serialized_data, cls=DTEncoder))
 
-    def restore(self):
-        self.backup_cls.restore()
+    def restore(self, backup: Path):
+        self.backup_cls.restore(backup)
