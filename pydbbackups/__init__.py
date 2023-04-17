@@ -7,8 +7,6 @@ example:
 from pydbbackups import Postgres
 
 cls = Postgres(
-    name="MyDB",
-    compress=False,
     database="test",
     host="localhost",
     port=5432,
@@ -17,7 +15,6 @@ cls = Postgres(
 )
 
 # In some cases dump method, return None
-# Like MongoDB
 
 output = cls.dump() # Return BytesIO
 print(output.read().decode('utf-8'))
