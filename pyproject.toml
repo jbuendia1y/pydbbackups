@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydbbackups"
-version = "0.0.4"
+version = "0.1.0"
 description = "DB backups handler"
 authors = ["jbuendia1y <jgamer669@gmail.com>"]
 license = "MIT"

@@ -10,7 +10,7 @@ from pydbbackups.cli.services import BackupsService
 
 
 @click.group(invoke_without_command=True, no_args_is_help=True)
-@click.version_option('0.0.4', prog_name='dbbackups')
+@click.version_option('0.1.0', prog_name='dbbackups')
 def app():
     """ Awesome APP """
 

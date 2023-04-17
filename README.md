@@ -19,7 +19,7 @@ dbbackups dump \
     --username postgres \
     --port 5432
 
-# backup-example___2023-04-10 11:42:59.090131 Created !
+# 0__backup-example.sql Created !
 ```
 
 ## Code example
@@ -36,7 +36,6 @@ cls = Postgres(
 )
 
 # In some cases dump method, return None
-# Like MongoDB
 
 output = cls.dump()  # Return BytesIO
 print(output.read().decode('utf-8'))

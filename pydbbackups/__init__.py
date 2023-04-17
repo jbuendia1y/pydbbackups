@@ -15,7 +15,6 @@ cls = Postgres(
 )
 
 # In some cases dump method, return None
-# Like MongoDB
 
 output = cls.dump() # Return BytesIO
 print(output.read().decode('utf-8'))
