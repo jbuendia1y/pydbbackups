@@ -74,7 +74,6 @@ class DTEncoder(json.JSONEncoder):
 # --------- Extension formatters ---------
 
 def mongo_ext_formatter(name: str, **kwargs):
-    print(kwargs.get('compress', False))
     if not kwargs.get('compress', False):
         return f"{name}.{mongodb.DUMP_DEFAULT_FORMAT}"
     else:
