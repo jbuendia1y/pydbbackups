@@ -1,7 +1,8 @@
-from .base import Backup
 import subprocess
 from io import BytesIO
 from pathlib import Path
+from pydbbackups.errors import CMDExecutionError
+from .base import Backup
 
 
 DUMP_DEFAULT_FORMAT = "archive"
@@ -10,7 +11,7 @@ DUMP_ARCHIVE_FORMAT = "archive"
 
 
 class MongoDB(Backup):
-    CMDS_TO_CHECK = [('mongodump', '--version')]
+    cmds_to_check = [('mongodump', '--version')]
 
     def dump(self, **kwargs):
         config = {
@@ -36,16 +37,17 @@ class MongoDB(Backup):
         if config['compress']:
             args.append('--gzip')
 
-        p = subprocess.Popen([
+        with subprocess.Popen([
             "mongodump",
             *args,
-        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+            status_code = process.wait()
+            if status_code > 0:
+                raise CMDExecutionError(process.stderr.read().decode('utf-8'))
 
-        status_code = p.wait()
-        if status_code > 0:
-            raise Exception(p.stderr.read().decode('utf-8'))
+            output = BytesIO(process.stdout.read())
 
-        return BytesIO(p.stdout.read())
+        return output
 
     def restore(self, file_path: Path) -> BytesIO:
         args = [
@@ -62,13 +64,13 @@ class MongoDB(Backup):
 
         args.append(f'--archive={file_path.resolve()}')
 
-        p = subprocess.Popen([
+        with subprocess.Popen([
             "mongorestore",
             *args,
-        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+            status_code = process.wait()
+            if status_code > 0:
+                raise CMDExecutionError(process.stderr.read().decode('utf-8'))
+            output = BytesIO(process.stdout.read())
 
-        status_code = p.wait()
-        if status_code > 0:
-            raise Exception(p.stderr.read().decode('utf-8'))
-
-        return BytesIO(p.stdout.read())
+        return output

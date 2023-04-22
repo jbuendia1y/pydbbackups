@@ -16,3 +16,7 @@ class CommandNotFound(Exception):
 
     def __init__(self, name: str) -> None:
         super().__init__(f'{name} command was not found')
+
+
+class CMDExecutionError(Exception):
+    """ Raised when a error occurred while running the command in subprocess """

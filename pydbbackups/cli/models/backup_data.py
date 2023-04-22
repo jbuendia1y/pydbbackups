@@ -6,12 +6,13 @@ from pathlib import Path
 
 @dataclass
 class BackupData:
+    # pylint: disable=C0103
     id: int
     name: str
     ext: str
     backup: Path
     database_name: str
-    created_at: datetime = field(default_factory=lambda: datetime.now())
+    created_at: datetime = field(default_factory=datetime.now)
 
 
 class BackupFile(NamedTuple):

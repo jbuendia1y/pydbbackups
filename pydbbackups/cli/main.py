@@ -1,7 +1,7 @@
-import click
 import getpass
-import inquirer
 import time
+import click
+import inquirer
 
 from rich.table import Table
 from rich.console import Console
@@ -51,8 +51,11 @@ def get_backups():
 @click.option('--compress', default=None, is_flag=True)
 @click.option('--format', default=None)
 @click.option('--file', required=False, default=None)
-def make_backup(name: str, database_type, host, database, username, password, without_password, port, compress, **kwargs):
-    name = name.replace('-', '_')
+def make_backup(**kwargs):
+    name = kwargs.get('name').replace('-', '_')
+    without_password = kwargs.get('without_password')
+    database_type = kwargs.get('without_password')
+    compress = kwargs.get('compress')
 
     if without_password is False and password is None:
         password = getpass.getpass('Password: ')
@@ -62,11 +65,11 @@ def make_backup(name: str, database_type, host, database, username, password, wi
 
     service = BackupsService.build(
         database_type,
-        host=host,
-        database=database,
-        username=username,
-        password=password,
-        port=port,
+        host=kwargs.get('host'),
+        database=kwargs.get('database'),
+        username=kwargs.get('username'),
+        password=kwargs.get('password'),
+        port=kwargs.get('port'),
     )
 
     console = Console()
@@ -84,7 +87,10 @@ def make_backup(name: str, database_type, host, database, username, password, wi
 @click.option('--username', required=True)
 @click.option('--password', default=None)
 @click.option('--without-password', default=False)
-def restore_backup(database_type, host, port, database, username, password, without_password):
+def restore_backup(**kwargs):
+    without_password = kwargs.get('without_password')
+    database_type = kwargs.get('database_type')
+
     if without_password is False and password is None:
         password = getpass.getpass('Password: ')
 
@@ -93,15 +99,15 @@ def restore_backup(database_type, host, port, database, username, password, with
 
     service = BackupsService.build(
         database_type,
-        host=host,
-        port=port,
-        database=database,
-        username=username,
+        host=kwargs.get('host'),
+        port=kwargs.get('port'),
+        database=kwargs.get('database'),
+        username=kwargs.get('username'),
         password=password
     )
     console = Console()
 
-    backups = [v for v in BackupsService.list_backups()]
+    backups = list(BackupsService.list_backups())
     backups.sort(key=lambda v: v[1].id)
     backups = [
         f"{d.id} - {d.name}.{d.ext} - {d.database_name}" for _, d in backups]

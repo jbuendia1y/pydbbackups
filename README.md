@@ -1,3 +1,8 @@
+<a href="https://github.com/jbuendia1y/pydbbackups/blob/main/LICENSE"><img src="https://img.shields.io/github/license/jbuendia1y/pydbbackups"></a>
+<a href="https://pypi.org/project/pydbbackups/"><img src="https://img.shields.io/pypi/v/pydbbackups"></a>
+<a href="https://pypi.org/project/pydbbackups/"><img src="https://img.shields.io/pypi/dw/pydbbackups"></a>
+<a href="https://github.com/pylint-dev/pylint"><img src="https://img.shields.io/badge/linting-pylint-yellowgreen"></a>
+
 # PyDBBackups
 
 A backup handler

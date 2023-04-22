@@ -1,9 +1,10 @@
-from .base import Backup
 from io import BytesIO
 from pathlib import Path
 import subprocess
 import gzip
 import os
+from pydbbackups.errors import CMDExecutionError
+from .base import Backup
 
 DUMP_DEFAULT_FORMAT = "sql"
 DUMP_SQL_FORMAT = "sql"
@@ -11,7 +12,7 @@ DUMP_GZIP_FORMAT = "gz"
 
 
 class MySQL(Backup):
-    CMDS_TO_CHECK = [('mysqldump', '--version'), ('mysql', '--version')]
+    cmds_to_check = [('mysqldump', '--version'), ('mysql', '--version')]
 
     def dump(self, **kwargs) -> BytesIO:
         env = os.environ.copy()
@@ -27,20 +28,19 @@ class MySQL(Backup):
             '--force'
         ]
 
-        p = subprocess.Popen(
+        with subprocess.Popen(
             [
                 'mysqldump',
                 *args
             ], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        ) as process:
+            status_code = process.wait()
 
-        status_code = p.wait()
+            if status_code > 0:
+                error = process.stderr.read().decode('utf-8')
+                raise CMDExecutionError(error)
 
-        if status_code > 0:
-            error = p.stderr.read().decode('utf-8')
-            raise Exception(error)
-
-        output = BytesIO(p.stdout.read())
+            output = BytesIO(process.stdout.read())
 
         if kwargs.get('compress') is True:
             output = BytesIO(gzip.compress(output.read()))
@@ -69,13 +69,14 @@ class MySQL(Backup):
 
         args.append(backup)
 
-        p = subprocess.Popen(
+        with subprocess.Popen(
             [
                 'mysql',
                 *args
             ], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        status_code = p.wait()
-        if status_code > 0:
-            error = p.stderr.read().decode('utf-8')
-            raise Exception(error)
+        ) as process:
+            status_code = process.wait()
+
+            if status_code > 0:
+                error = process.stderr.read().decode('utf-8')
+                raise CMDExecutionError(error)
