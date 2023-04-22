@@ -7,17 +7,17 @@ from pydbbackups.cli.config import BACKUPS_DATA_DIR, BACKUPS_DIR
 from pydbbackups import Backup
 from pydbbackups.cli.models import BackupFile, BackupData
 from datetime import datetime
-from pydbbackups.backups import mongodb, postgres
+from pydbbackups.backups import mongodb, postgres, mysql
 
 databases = {
     'postgres': 'Postgres',
-    'mongodb': 'MongoDB'
+    'mongodb': 'MongoDB',
+    'mysql': 'MySQL'
 }
 
 
 def get_backups_data() -> List[BackupData]:
     b_data = BACKUPS_DATA_DIR.read_bytes()
-    # 2023-04-16 11:55:13.039897
     data = [
         BackupData(
             id=v['id'],
@@ -95,3 +95,10 @@ def postgres_ext_formatter(name, **kwargs):
     else:
         ext = dictionary.get(format)
     return f"{name}{f'.{ext}' if len(ext) > 0 else ''}"
+
+
+def mysql_ext_formatter(name, **kwargs):
+    if kwargs.get('compress', False) is True:
+        return f"{name}.{mysql.DUMP_GZIP_FORMAT}"
+    else:
+        return f"{name}.{mysql.DUMP_DEFAULT_FORMAT}"

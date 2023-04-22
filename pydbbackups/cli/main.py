@@ -8,6 +8,9 @@ from rich.console import Console
 from pydbbackups.cli.config import build_config
 from pydbbackups.cli.services import BackupsService
 
+AVAILABLE_DUMP_DB = ['postgres', 'mongodb', 'mysql']
+AVAILABLE_RESTORE_DB = ['postgres', 'mongodb', 'mysql']
+
 
 @click.group(invoke_without_command=True, no_args_is_help=True)
 @click.version_option('0.1.0', prog_name='dbbackups')
@@ -38,7 +41,7 @@ def get_backups():
 
 @app.command(name='dump')
 @click.option('--name', required=True)
-@click.option('--database-type', required=True, type=click.Choice(['postgres', 'mongodb']))
+@click.option('--database-type', required=True, type=click.Choice(AVAILABLE_DUMP_DB))
 @click.option('--host', required=True)
 @click.option('--database', required=True)
 @click.option('--username', default=None)
@@ -74,7 +77,7 @@ def make_backup(name: str, database_type, host, database, username, password, wi
 
 
 @app.command(name='restore')
-@click.option('--database-type', required=True, type=click.Choice(['postgres', 'mongodb']))
+@click.option('--database-type', required=True, type=click.Choice(AVAILABLE_RESTORE_DB))
 @click.option('--host', required=True)
 @click.option('--port', default=None)
 @click.option('--database', required=True)

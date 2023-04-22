@@ -1,4 +1,13 @@
-from pydbbackups.cli.utils import get_backup_class, save_backup_file, get_backups_data, get_backups_files, DTEncoder, mongo_ext_formatter, postgres_ext_formatter
+from pydbbackups.cli.utils import (
+    get_backup_class,
+    save_backup_file,
+    get_backups_data,
+    get_backups_files,
+    DTEncoder,
+    mongo_ext_formatter,
+    postgres_ext_formatter,
+    mysql_ext_formatter
+)
 from pydbbackups.cli.config import BACKUPS_DATA_DIR
 from pydbbackups.cli.models import BackupData, BackupFile
 
@@ -12,7 +21,8 @@ from pathlib import Path
 def backup_ext_formatter(db_type: str, name: str, **kwargs) -> str:
     databases = {
         "postgres": postgres_ext_formatter,
-        "mongodb": mongo_ext_formatter
+        "mongodb": mongo_ext_formatter,
+        "mysql": mysql_ext_formatter
     }
 
     formatter = databases.get(db_type, None)
