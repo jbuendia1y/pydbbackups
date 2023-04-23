@@ -18,13 +18,14 @@ class Backup:
 
     cmds_to_check: Optional[Sequence[Tuple[str, Optional[str]] | str]] = None
 
-    def exist_cmds(self):
-        if not self.cmds_to_check:
+    @classmethod
+    def exist_cmds(cls):
+        if not cls.cmds_to_check:
             print(
-                f"Warning : The {self.__class__.__name__} class doesn't have commands to check")
+                f"Warning : The {cls.__class__.__name__} class doesn't have commands to check")
             return
-
-        for cmd in self.cmds_to_check:
+        # pylint: disable=E1133
+        for cmd in cls.cmds_to_check:
             # args = []
             if isinstance(cmd, tuple):
                 command = cmd[0]
