@@ -13,7 +13,7 @@ AVAILABLE_RESTORE_DB = ['postgres', 'mongodb', 'mysql']
 
 
 @click.group(invoke_without_command=True, no_args_is_help=True)
-@click.version_option('0.1.0', prog_name='dbbackups')
+@click.version_option('0.1.1', prog_name='dbbackups')
 def app():
     """ Awesome APP """
 
@@ -51,11 +51,11 @@ def get_backups():
 @click.option('--compress', default=None, is_flag=True)
 @click.option('--format', default=None)
 @click.option('--file', required=False, default=None)
-def make_backup(**kwargs):
-    name = kwargs.get('name').replace('-', '_')
+def make_backup(name: str, **kwargs):
+    name = name.replace('-', '_')
     without_password = kwargs.get('without_password')
-    database_type = kwargs.get('without_password')
-    compress = kwargs.get('compress')
+    password = kwargs.get('password')
+    database_type = kwargs.get('database_type')
 
     if without_password is False and password is None:
         password = getpass.getpass('Password: ')
@@ -74,7 +74,7 @@ def make_backup(**kwargs):
 
     console = Console()
     with console.status("[bold green]Dumping database ..."):
-        service.dump(name, compress=compress, **kwargs)
+        service.dump(name, **kwargs)
         time.sleep(1)
     console.print("[bold green] Backup created !")
 
@@ -89,6 +89,7 @@ def make_backup(**kwargs):
 @click.option('--without-password', default=False)
 def restore_backup(**kwargs):
     without_password = kwargs.get('without_password')
+    password = kwargs.get('password')
     database_type = kwargs.get('database_type')
 
     if without_password is False and password is None:
