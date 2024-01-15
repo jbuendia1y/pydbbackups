@@ -1,18 +1,28 @@
-from pydbbackups.cli.utils import get_backup_class, save_backup_file, get_backups_data, get_backups_files, DTEncoder, mongo_ext_formatter, postgres_ext_formatter
+import json
+from dataclasses import asdict
+from pathlib import Path
+from datetime import datetime
+
+from pydbbackups.cli.utils import (
+    get_backup_class,
+    save_backup_file,
+    get_backups_data,
+    get_backups_files,
+    DTEncoder,
+    mongo_ext_formatter,
+    postgres_ext_formatter,
+    mysql_ext_formatter
+)
 from pydbbackups.cli.config import BACKUPS_DATA_DIR
 from pydbbackups.cli.models import BackupData, BackupFile
-
 from pydbbackups import Backup
-from datetime import datetime
-from dataclasses import asdict
-import json
-from pathlib import Path
 
 
 def backup_ext_formatter(db_type: str, name: str, **kwargs) -> str:
     databases = {
         "postgres": postgres_ext_formatter,
-        "mongodb": mongo_ext_formatter
+        "mongodb": mongo_ext_formatter,
+        "mysql": mysql_ext_formatter
     }
 
     formatter = databases.get(db_type, None)
@@ -54,9 +64,10 @@ class BackupsService:
     @staticmethod
     def get_backup(backup_id: int):
         data = get_backups_data()
-        for v in data:
-            if v.id == backup_id:
-                return v
+        for value in data:
+            if value.id == backup_id:
+                return value
+        return None
 
     def dump(self, name: str, **kwargs):
         output = self.backup_cls.dump(**kwargs)
@@ -75,10 +86,10 @@ class BackupsService:
         if not output or len(content) == 0:
             print('Warning: This backup will not be saved')
             return
-        else:
-            meta = save_backup_file(BackupFile(
-                id=created_id, name=name, ext=ext, file=Path()), content)
-            print(meta.file, 'Created !')
+
+        meta = save_backup_file(BackupFile(
+            id=created_id, name=name, ext=ext, file=Path()), content)
+        print(meta.file, 'Created !')
 
         data.append(BackupData(**{
             "id": len(data),
@@ -90,7 +101,8 @@ class BackupsService:
         }))
 
         serialized_data = [asdict(v) for v in data]
-        BACKUPS_DATA_DIR.write_text(json.dumps(serialized_data, cls=DTEncoder))
+        BACKUPS_DATA_DIR.write_text(json.dumps(
+            serialized_data, cls=DTEncoder), encoding='utf-8')
 
     def restore(self, backup: Path):
         self.backup_cls.restore(backup)
